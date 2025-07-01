@@ -13,7 +13,7 @@ const Dashboard = () => {
         }
         fetchProtectedData();
     }, [])
-
+ 
   return (
     <div className='text-light'>Dashboard</div>
   )
