@@ -180,6 +180,8 @@ logs
 node_modules
 bower_components
 
+Resources
+
 *.sublime*
 
 psd
