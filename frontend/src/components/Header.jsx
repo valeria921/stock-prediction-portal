@@ -17,7 +17,7 @@ const Header = () => {
   return (
     <>
         <nav className='navbar container pt-3 pb-3 align-items-start '>
-            <Link className='navbar-brand text-light' to='/'>Stock prediction portal</Link>
+            <Link className='navbar-brand text-light' to='/'>📈 Stock prediction portal</Link>
 
             <div>
               {isLoggedIn ? (

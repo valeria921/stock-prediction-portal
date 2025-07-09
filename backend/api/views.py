@@ -7,6 +7,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 from datetime import datetime
 import os
 from django.conf import settings
@@ -31,13 +32,15 @@ class StockPredictionAPIView(APIView):
                 return Response({'error': 'No data found for the given ticker.',
                                  'status': status.HTTP_404_NOT_FOUND})
             df = df.reset_index()
+            df['Date'] = pd.to_datetime(df['Date'])
+            print(df)
 
             # Generate basic plot
             plt.switch_backend('AGG')
             plt.figure(figsize = (12,5))
-            plt.plot(df.Close, label = 'Closing price')
+            plt.plot(df['Date'], df.Close, label = 'Closing price')
             plt.title(f'Closing price of {ticker}')
-            plt.xlabel('Days')
+            plt.xlabel('Date')
             plt.ylabel('Close price')
             plt.legend()
 
@@ -49,10 +52,10 @@ class StockPredictionAPIView(APIView):
             ma100 = df[('MA_100', ticker)] = df[('Close', ticker)].rolling(100).mean()
             plt.switch_backend('AGG')
             plt.figure(figsize = (12,5))
-            plt.plot(df.Close, label = 'Closing price')
-            plt.plot(ma100, 'r', label = '100 Days moving average')
+            plt.plot(df['Date'],df.Close, label = 'Closing price')
+            plt.plot(df['Date'], ma100, 'r', label = '100 Days moving average')
             plt.title(f'100 Days moving average of {ticker}')
-            plt.xlabel('Days')
+            plt.xlabel('Date')
             plt.ylabel('Close price')
             plt.legend()
             plot_img_path = f'{ticker}_100_dma.png'
@@ -62,11 +65,11 @@ class StockPredictionAPIView(APIView):
             ma200 = df[('MA_100', ticker)] = df[('Close', ticker)].rolling(200).mean()
             plt.switch_backend('AGG')
             plt.figure(figsize = (12,5))
-            plt.plot(df.Close, label = 'Closing price')
-            plt.plot(ma100, 'r', label = '100 Days moving average')
-            plt.plot(ma200, 'g', label = '200 Days moving average')
+            plt.plot(df['Date'], df.Close, label = 'Closing price')
+            plt.plot(df['Date'], ma100, 'r', label = '100 Days moving average')
+            plt.plot(df['Date'], ma200, 'g', label = '200 Days moving average')
             plt.title(f'200 Days moving average of {ticker}')
-            plt.xlabel('Days')
+            plt.xlabel('Date')
             plt.ylabel('Close price')
             plt.legend()
             plot_img_path = f'{ticker}_200_dma.png'
@@ -102,13 +105,16 @@ class StockPredictionAPIView(APIView):
             y_predicted = scaler.inverse_transform(y_predicted.reshape(-1,1)).flatten()
             y_test = scaler.inverse_transform(y_test.reshape(-1,1)).flatten()
 
+            test_dates = df['Date'].iloc[-len(final_df):].reset_index(drop=True)
+            test_dates = test_dates[100:]  # match y_test/y_pred length
+
             # Plot the final prediction
             plt.switch_backend('AGG')
             plt.figure(figsize = (12,5))
-            plt.plot(y_test, 'b', label = 'Original price')
-            plt.plot(y_predicted, 'r', label = 'Predicted price')
+            plt.plot(test_dates, y_test, 'b', label = 'Original price')
+            plt.plot(test_dates, y_predicted, 'r', label = 'Predicted price')
             plt.title(f'Final prediction for {ticker}')
-            plt.xlabel('Days')
+            plt.xlabel('Date')
             plt.ylabel('Close price')
             plt.legend()
             plot_img_path = f'{ticker}_final_prediction.png'
