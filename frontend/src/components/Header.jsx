@@ -1,6 +1,6 @@
 import {useContext} from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button'
-import {Link, useNavigate} from 'react-router-dom'
 import { AuthContext } from '../AuthProvider'
 
 const Header = () => {
